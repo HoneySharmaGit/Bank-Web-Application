@@ -77,6 +77,8 @@ public class User {
 	@Column(name = "number_verified")
 	private String numberVerified;
 
+	private String profile;
+
 	public int getId() {
 		return id;
 	}
@@ -243,5 +245,13 @@ public class User {
 
 	public void setNumberVerified(String numberVerified) {
 		this.numberVerified = numberVerified;
+	}
+
+	public String getProfile() {
+		return profile;
+	}
+
+	public void setProfile(String profile) {
+		this.profile = profile;
 	}
 }

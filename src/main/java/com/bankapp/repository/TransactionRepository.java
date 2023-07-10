@@ -16,7 +16,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 	@Query("SELECT SUM(transaction.value) FROM Transaction transaction WHERE transaction.user=:user AND status='withdraw'")
 	double findAllWithdrawnByUser(User user);
 
-	@Query("SELECT SUM(transaction.value) FROM Transaction transaction WHERE transaction.user=:user AND status='deposit'")
+	@Query("SELECT SUM(transaction.value) FROM Transaction transaction WHERE transaction.user=:user AND status='depositw'")
 	double findAllDepositByUser(User user);
 
 }

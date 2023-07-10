@@ -27,6 +27,8 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 
+	// code for registering user
+	// requestbody -> email, firstName, lastName, phoneNumber, password
 	@PostMapping("/register")
 	private ResponseEntity<?> registerAsUser(@RequestBody(required = false) User user) {
 		try {
@@ -36,6 +38,8 @@ public class UserController {
 		}
 	}
 
+	// code for login
+	// requestbody -> email, password
 	@PostMapping("/login")
 	private ResponseEntity<?> userLogin(@RequestBody(required = false) User user) {
 		try {
@@ -45,6 +49,8 @@ public class UserController {
 		}
 	}
 
+	// code for sending otp on number or email
+	// requestbody -> email, phoneNumber
 	@PostMapping("/sendotp")
 	public ResponseEntity<?> sendOtpToUser(@RequestBody(required = false) Map<String, Object> map) {
 		if (map.get("email") != null) {
@@ -58,8 +64,9 @@ public class UserController {
 		}
 	}
 
+	// code for getting user details using userId(String)
 	@GetMapping("/{userId}")
-	public ResponseEntity<?> getUser(@PathVariable(required = false) String userId) {
+	public ResponseEntity<?> getUser(@PathVariable(value = "userId", required = false) String userId) {
 		try {
 			return userService.getUserByUserId(userId);
 		} catch (Exception e) {
@@ -67,8 +74,9 @@ public class UserController {
 		}
 	}
 
+	// code deleting user details using userId(String)
 	@DeleteMapping("/{userId}/delete")
-	public ResponseEntity<?> deleteUser(@PathVariable(required = false) String userId) {
+	public ResponseEntity<?> deleteUser(@PathVariable(value = "userId", required = false) String userId) {
 		try {
 			return userService.deleteUserByUserId(userId);
 		} catch (Exception e) {
@@ -76,6 +84,8 @@ public class UserController {
 		}
 	}
 
+	// code for editing user details using userId(String)
+	// requestbody -> firstName, lastName, email, phoneNumber, gender
 	@PutMapping("/{userId}/edit")
 	public ResponseEntity<?> updateUser(@PathVariable(value = "userId", required = false) String userId,
 			@RequestBody(required = false) User editedUser) {
@@ -86,6 +96,8 @@ public class UserController {
 		}
 	}
 
+	// code for adding address for user using userId(String)
+	// requestbody -> city, country, houseNo, state, street, pincode
 	@PostMapping("/{userId}/address")
 	public ResponseEntity<?> addAddress(@PathVariable(value = "userId", required = false) String userId,
 			@RequestBody(required = false) Address address) {
@@ -96,6 +108,8 @@ public class UserController {
 		}
 	}
 
+	// code for editing address of user using addressId
+	// requestbody -> city, country, houseNo, state, street, pincode
 	@PutMapping("/address/{addressId}/edit")
 	public ResponseEntity<?> editAddress(@PathVariable(value = "addressId", required = false) int addressId,
 			@RequestBody(required = false) Address editedAddress) {
@@ -106,6 +120,7 @@ public class UserController {
 		}
 	}
 
+	// code for deleting address of user using addressId
 	@DeleteMapping("/address/{addressId}/delete")
 	public ResponseEntity<?> deleteAddress(@PathVariable(value = "addressId", required = false) int addressId) {
 		try {
@@ -148,6 +163,7 @@ public class UserController {
 		}
 	}
 
+	// code for getting all the transactions of user using userId(String)
 	@GetMapping("/{userId}/transactions")
 	public ResponseEntity<?> getTransactions(@PathVariable(value = "uesrId", required = false) String userId) {
 		try {
@@ -157,6 +173,8 @@ public class UserController {
 		}
 	}
 
+	// code for generating new atm pin for user using userId(String)
+	// requestbody -> uniqueString
 	@PostMapping("/{userId}/generatepin")
 	public ResponseEntity<?> generatePin(@PathVariable(value = "uesrId", required = false) String userId,
 			@RequestBody(required = false) Map<String, Object> map) {
@@ -164,6 +182,22 @@ public class UserController {
 			if (map.get("uniqueString") != null) {
 				String uniqueString = (String) map.get("uniqueString");
 				return userService.generateNewPin(userId, uniqueString);
+			} else {
+				return ResponseEntity.badRequest().body(new StatusResponse("error", "bad request"));
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(new StatusResponse("error", e.getMessage()));
+		}
+	}
+
+	// code for creating bank account of user using userId(String)
+	// requestbody -> accountType
+	@PostMapping("/{userId}/bankaccount")
+	public ResponseEntity<?> requestBankAccount(@PathVariable(value = "userId", required = false) String userId,
+			@RequestBody(required = false) Map<String, Object> map) {
+		try {
+			if (map.get("accountType") != null) {
+				return userService.requestForBankAccount(userId, map);
 			} else {
 				return ResponseEntity.badRequest().body(new StatusResponse("error", "bad request"));
 			}

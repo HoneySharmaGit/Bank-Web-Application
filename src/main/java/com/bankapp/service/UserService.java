@@ -5,6 +5,8 @@ import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Random;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bankapp.entity.User;
 import com.bankapp.exception.AddressNotFound;
 import com.bankapp.exception.BadRequest;
+import com.bankapp.exception.BankAccountExists;
 import com.bankapp.exception.IncorrectPassword;
 import com.bankapp.exception.UserExists;
 import com.bankapp.exception.UserNotFound;
@@ -67,7 +70,10 @@ public class UserService {
 			String encodedPassword = encoder.encodeToString(user.getPassword().getBytes());
 			user.setPassword(encodedPassword);
 			User savedUser = userRepo.save(user);
-			return ResponseEntity.ok(savedUser);
+			Map<String, Object> map = new TreeMap<>();
+			map.put("userId", savedUser.getUserId());
+			map.put("email", savedUser.getEmail());
+			return ResponseEntity.ok(map);
 		}
 	}
 
@@ -345,6 +351,36 @@ public class UserService {
 			user.setAtmPinModifiedAt(dateGenerator.getCurrentTime());
 			userRepo.save(user);
 			return ResponseEntity.ok(newPin);
+		} else {
+			throw new UserNotFound("user not found");
+		}
+	}
+
+	public ResponseEntity<?> requestForBankAccount(String userId, Map<String, Object> map) {
+		if (userId == null) {
+			return ResponseEntity.badRequest().body(new StatusResponse("error", "bad request"));
+		}
+		User user = userRepo.findByUserId(userId);
+		if (user != null) {
+			if (user.getAccountNumber() != null) {
+				throw new BankAccountExists("bank account already exists");
+			}
+			user.setAccountNumber(String.valueOf(System.currentTimeMillis()) + user.getId());
+			user.setAccountStatus("pending");
+			user.setAccountType((String) map.get("accountType"));
+			Random random = new Random();
+			int atmPin = random.nextInt(9999);
+			user.setAtmNumber(atmPin);
+			user.setUniqueString(user.getId() + String.valueOf(System.currentTimeMillis()) + user.getId());
+			User savedUser = userRepo.save(user);
+
+			Map<String, Object> userMap = new TreeMap<>();
+			userMap.put("accountNumber", savedUser.getAccountNumber());
+			userMap.put("accountStatus", savedUser.getAccountStatus());
+			userMap.put("accountType", savedUser.getAccountType());
+			userMap.put("atmNumber", savedUser.getAtmNumber());
+			userMap.put("uniqueString", savedUser.getUniqueString());
+			return ResponseEntity.ok(userMap);
 		} else {
 			throw new UserNotFound("user not found");
 		}

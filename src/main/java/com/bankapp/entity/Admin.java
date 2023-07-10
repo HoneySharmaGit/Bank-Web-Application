@@ -35,6 +35,8 @@ public class Admin {
 	@Column(name = "phone_number")
 	private String phoneNumber;
 
+	private String profile;
+
 	public int getAdminId() {
 		return adminId;
 	}
@@ -81,5 +83,13 @@ public class Admin {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	public String getProfile() {
+		return profile;
+	}
+
+	public void setProfile(String profile) {
+		this.profile = profile;
 	}
 }
